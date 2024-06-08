@@ -8,12 +8,12 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 from bot.helpers.upload import upload_file_to_telegram
 from pyrogram.types import Message
+from bot.helpers.file_download import download_file_cloudscraper
+from bot import cloudscraper_instance
 
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-cloudscraper_instance = cloudscraper.create_scraper()
 
 def write_to_file(data):
     try:
@@ -75,24 +75,6 @@ def download_file(url, filename, num_parts=4):
 
         progress_bar.close()
         merge_files(part_filenames, filename)
-        logging.info(f"File downloaded successfully: {filename}")
-        return filename, True
-    except Exception as e:
-        logging.error(f"Error downloading file: {e}")
-        return None, False
-
-def download_file_cloudscraper(url, filename):
-    try:
-        # Create 'downloads' directory if it doesn't exist
-        os.makedirs('downloads', exist_ok=True)
-
-        # Join 'downloads' with the filename
-        filename = os.path.join('downloads', filename)
-        with cloudscraper_instance.get(url, stream=True) as r:
-            r.raise_for_status()
-            with open(filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
         logging.info(f"File downloaded successfully: {filename}")
         return filename, True
     except Exception as e:
@@ -171,7 +153,7 @@ def get_info(url):
 
 def validate_download_mime_type(url):
     try:
-        response = cloudscraper_instance.get(url)
+        response = cloudscraper_instance.head(url)
         logging.info(f"GET request sent to URL: {url}, status code: {response.status_code}, headers: {response.headers}, content-type: {response.headers.get('content-type')}")
         if response.status_code == 200:
             content_type = response.headers.get('content-type')
@@ -229,7 +211,7 @@ async def general_download_and_upload(url, client, message):
             return
         logging.info(f"isValid: {isValid}, filename: {filename}")
         if isValid:
-            filename, isSuccessful = download_file_cloudscraper(url, filename)
+            filename, isSuccessful = await download_file_cloudscraper(url, filename, message)
             if not isSuccessful:
                 logging.error("Error downloading file.")
                 return

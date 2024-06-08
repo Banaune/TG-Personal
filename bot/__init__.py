@@ -4,6 +4,7 @@ import logging
 from .env import get_env
 from logging.handlers import RotatingFileHandler
 import time
+import cloudscraper
 
 API_ID = get_env('API_ID')
 API_HASH = get_env('API_HASH')
@@ -80,3 +81,5 @@ logging.getLogger('pyrogram').setLevel(logging.WARNING)
 def LOGGER(log: str) -> logging.Logger:
     """Logger function"""
     return logging.getLogger(log)
+
+cloudscraper_instance = cloudscraper.create_scraper()

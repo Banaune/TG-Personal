@@ -7,12 +7,12 @@ logger = LOGGER(__name__)
 
 last_edit_time = {}
 
-async def progress(current, total, message: Message = None, user_message: Message = None, operation: str = "download"):
+async def progress(current, total, message: Message = None, user_message: Message = None, operation: str = "upload"):
     operation_title = "Uploading" if operation == "upload" else "Downloading"
     completion_message = "Upload completed" if operation == "upload" else "Download completed"
 
-    download_id = f"{message.chat.id}{message.id}"
-    print("Progress Download ID++++++++++++++++++++:", download_id)
+    download_id = f"{message.chat.id}{message.id}" if message else f"{user_message.chat.id}{user_message.id}"
+    # print("Progress Download ID++++++++++++++++++++:", download_id)
     start_time = state.get_start_time(download_id, default=time.perf_counter())
     if state.download_status.get(download_id) == "cancelled":
         state.remove_start_time(download_id)
