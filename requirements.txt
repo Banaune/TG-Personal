@@ -1,0 +1,8 @@
+pyrogram
+TgCrypto
+hurry.filesize
+python-dotenv
+psutil
+tqdm
+cloudscraper
+watchdog
